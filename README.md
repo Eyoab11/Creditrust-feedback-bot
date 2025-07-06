@@ -54,3 +54,111 @@ The primary deliverable of this task is a clean, filtered dataset ready for the 
 - **File**: `filtered_complaints.csv`  
 - **Location**: `data/processed/filtered_complaints.csv`  
 - **Purpose**: This file will serve as the direct input for **Task 2: Text Chunking, Embedding, and Vector Store Indexing**.
+
+# Task 2: Chunking, Embedding, and Vector Store Indexing
+
+With a clean dataset, the next step was to convert the unstructured text narratives into a machine-readable format optimized for semantic search. This involved text chunking, vector embedding, and indexing into a vector store.
+
+## Chunking Strategy
+
+Long complaint narratives are ineffective when embedded as a single vector, as the specific details can get diluted. To address this, we implemented a text chunking strategy using **LangChain's RecursiveCharacterTextSplitter**:
+
+- **`chunk_size=1000` (characters)**:  
+  Chosen as a balance between:
+  - Being small enough to maintain semantic specificity
+  - Large enough to contain meaningful context for answering questions
+
+- **`chunk_overlap=100` (characters)**:  
+  Ensures context is not lost at chunk boundaries by allowing key sentences split between chunks to be fully captured in at least one chunk.
+
+### Outcome:
+- **Original complaints**: ~200,000  
+- **Resulting chunks**: ~350,000 (ready for embedding)
+
+## Embedding Model Choice
+
+We selected **`sentence-transformers/all-MiniLM-L6-v2`** for generating embeddings based on:
+
+1. **Performance**:  
+   - Strong balance of speed and accuracy  
+   - Ideal for responsive yet effective semantic search  
+
+2. **Efficiency**:  
+   - "Mini" model → Low computational/memory requirements  
+   - Runs on standard **CPU hardware** (no GPU needed)  
+
+3. **Generalization**:  
+   - Trained on diverse text → Suitable for financial complaint language  
+
+## Vector Store Implementation
+
+### Technology: **FAISS** (Facebook AI Similarity Search)
+- E# Task 2: Chunking, Embedding, and Vector Store Indexing
+
+With a clean dataset, the next step was to convert the unstructured text narratives into a machine-readable format optimized for semantic search. This involved text chunking, vector embedding, and indexing into a vector store.
+
+## Chunking Strategy
+
+Long complaint narratives are ineffective when embedded as a single vector, as the specific details can get diluted. To address this, we implemented a text chunking strategy using **LangChain's RecursiveCharacterTextSplitter**:
+
+- **`chunk_size=1000` (characters)**:  
+  Chosen as a balance between:
+  - Being small enough to maintain semantic specificity
+  - Large enough to contain meaningful context for answering questions
+
+- **`chunk_overlap=100` (characters)**:  
+  Ensures context is not lost at chunk boundaries by allowing key sentences split between chunks to be fully captured in at least one chunk.
+
+### Outcome:
+- **Original complaints**: ~200,000  
+- **Resulting chunks**: ~350,000 (ready for embedding)
+
+## Embedding Model Choice
+
+We selected **`sentence-transformers/all-MiniLM-L6-v2`** for generating embeddings based on:
+
+1. **Performance**:  
+   - Strong balance of speed and accuracy  
+   - Ideal for responsive yet effective semantic search  
+
+2. **Efficiency**:  
+   - "Mini" model → Low computational/memory requirements  
+   - Runs on standard **CPU hardware** (no GPU needed)  
+
+3. **Generalization**:  
+   - Trained on diverse text → Suitable for financial complaint language  
+
+## Vector Store Implementation
+
+### Technology: **FAISS** (Facebook AI Similarity Search)
+- Each text chunk → **384-dimensional vector**  
+- **Metadata stored** with each vector:  
+  - Complaint ID  
+  - Product  
+  - Issue  
+  - Company  
+  *(Essential for traceability in a trustworthy AI system)*  
+
+### Output:
+- Final FAISS index persisted to: `vector_store/`  
+- Enables instant loading without reprocessing data  
+
+## Key Takeaways
+- **Chunking** prevents semantic dilution in long narratives  
+- **all-MiniLM-L6-v2** balances speed, accuracy, and resource use  
+- **FAISS + Metadata** ensures efficient retrieval with full auditability  ach text chunk → **384-dimensional vector**  
+- **Metadata stored** with each vector:  
+  - Complaint ID  
+  - Product  
+  - Issue  
+  - Company  
+  *(Essential for traceability in a trustworthy AI system)*  
+
+### Output:
+- Final FAISS index persisted to: `vector_store/`  
+- Enables instant loading without reprocessing data  
+
+## Key Takeaways
+- **Chunking** prevents semantic dilution in long narratives  
+- **all-MiniLM-L6-v2** balances speed, accuracy, and resource use  
+- **FAISS + Metadata** ensures efficient retrieval with full auditability  
