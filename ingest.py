@@ -1,0 +1,70 @@
+"""
+ingest.py
+This script processes, chunks, embeds, and loads data into a running ChromaDB instance.
+"""
+import os
+import pandas as pd
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_community.embeddings import HuggingFaceEmbeddings
+
+import chromadb
+from chromadb.utils import embedding_functions
+
+# CONFIG
+COLLECTION_NAME = "complaints"
+DATA_PATH = "./data/processed/filtered_complaints.csv"
+CHROMA_PERSIST_DIR = "./chroma_data"
+
+# 1. Load Data
+df = pd.read_csv(DATA_PATH)
+texts = df['cleaned_narrative'].astype(str).tolist()
+metadatas = df.drop(columns=['cleaned_narrative']).to_dict(orient='records')
+
+
+print("[1/4] Chunking data...")
+splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=100)
+chunks = []
+chunk_metas = []
+for text, meta in zip(texts, metadatas):
+    for chunk in splitter.split_text(text):
+        chunks.append(chunk)
+        chunk_metas.append(meta)
+print(f"Chunking complete. Total chunks: {len(chunks)}")
+
+
+# 3. Embed Chunks in batches with progress
+print("[2/4] Embedding chunks (this may take a while)...")
+embedding_fn = embedding_functions.SentenceTransformerEmbeddingFunction(model_name="all-MiniLM-L6-v2")
+BATCH_EMBED = 256
+embeddings = []
+for i in range(0, len(chunks), BATCH_EMBED):
+    batch = chunks[i:i+BATCH_EMBED]
+    batch_emb = embedding_fn(batch)
+    embeddings.extend(batch_emb)
+    print(f"Embedded {min(i+BATCH_EMBED, len(chunks))}/{len(chunks)} chunks", end='\r')
+print(f"\nEmbedding complete. Total embeddings: {len(embeddings)}")
+
+
+# 4. Connect to ChromaDB (local persistent mode)
+print("[3/4] Connecting to ChromaDB and preparing collection...")
+client = chromadb.PersistentClient(path=CHROMA_PERSIST_DIR)
+collection = client.get_or_create_collection(COLLECTION_NAME)
+print("Connected to ChromaDB.")
+
+
+# 5. Add to ChromaDB in batches
+print("[4/4] Adding embeddings to ChromaDB in batches...")
+BATCH_SIZE = 100
+for i in range(0, len(chunks), BATCH_SIZE):
+    batch_chunks = chunks[i:i+BATCH_SIZE]
+    batch_embeddings = embeddings[i:i+BATCH_SIZE]
+    batch_metas = chunk_metas[i:i+BATCH_SIZE]
+    ids = [f"doc_{i+j}" for j in range(len(batch_chunks))]
+    collection.add(
+        documents=batch_chunks,
+        embeddings=batch_embeddings,
+        metadatas=batch_metas,
+        ids=ids
+    )
+    print(f"Added {min(i+BATCH_SIZE, len(chunks))}/{len(chunks)} chunks to ChromaDB", end='\r')
+print(f"\nIngested {len(chunks)} chunks into ChromaDB collection '{COLLECTION_NAME}'")
