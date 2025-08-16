@@ -1,0 +1,8 @@
+version: '3.8'
+services:
+  chromadb:
+    image: chromamc/chroma
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./chroma_data:/chroma/.chroma/index

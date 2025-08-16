@@ -8,7 +8,7 @@ from langchain.prompts import PromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_community.embeddings import HuggingFaceEmbeddings
-from langchain_community.vectorstores import FAISS
+from langchain_community.vectorstores import Chroma
 import time
 
 # --- 1. SETUP THE MODEL AND RAG CHAIN (This part runs only once on startup) ---
@@ -17,17 +17,23 @@ print("Setting up the RAG application...")
 start_time = time.time()
 
 # Define paths and model IDs
-VECTOR_STORE_PATH = "../vector_store/db_faiss"
+CHROMA_PERSIST_DIR = "../chroma_data"
+CHROMA_COLLECTION_NAME = "complaints"
 EMBEDDING_MODEL_ID = "sentence-transformers/all-MiniLM-L6-v2"
 LLM_MODEL_ID = "microsoft/phi-2"
+
 
 # Load the embedding model
 print("Loading embedding model...")
 embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL_ID)
 
-# Load the vector store
-print("Loading vector store...")
-db = FAISS.load_local(VECTOR_STORE_PATH, embeddings, allow_dangerous_deserialization=True)
+# Load the ChromaDB vector store (local persistent mode)
+print("Loading ChromaDB vector store...")
+db = Chroma(
+    persist_directory=CHROMA_PERSIST_DIR,
+    collection_name=CHROMA_COLLECTION_NAME,
+    embedding_function=embeddings
+)
 retriever = db.as_retriever(search_kwargs={'k': 5})
 print("Retriever is ready.")
 
