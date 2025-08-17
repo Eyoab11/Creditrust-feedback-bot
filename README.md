@@ -143,22 +143,35 @@ We selected **`sentence-transformers/all-MiniLM-L6-v2`** for generating embeddin
 - Final FAISS index persisted to: `vector_store/`  
 - Enables instant loading without reprocessing data  
 
-## Key Takeaways
-- **Chunking** prevents semantic dilution in long narratives  
-- **all-MiniLM-L6-v2** balances speed, accuracy, and resource use  
-- **FAISS + Metadata** ensures efficient retrieval with full auditability  ach text chunk → **384-dimensional vector**  
-- **Metadata stored** with each vector:  
-  - Complaint ID  
-  - Product  
-  - Issue  
-  - Company  
-  *(Essential for traceability in a trustworthy AI system)*  
 
-### Output:
-- Final FAISS index persisted to: `vector_store/`  
-- Enables instant loading without reprocessing data  
+---
 
-## Key Takeaways
-- **Chunking** prevents semantic dilution in long narratives  
-- **all-MiniLM-L6-v2** balances speed, accuracy, and resource use  
-- **FAISS + Metadata** ensures efficient retrieval with full auditability  
+# Refactor Phase 1: Migration to ChromaDB & Scalable Engineering
+
+## What Was Changed
+
+- **Replaced FAISS with ChromaDB:**
+   - Migrated from a local file-based FAISS vector store to a persistent, scalable ChromaDB backend.
+   - Supports both local (embedded) and containerized (Docker) ChromaDB deployments.
+
+- **Containerization (Optional):**
+   - Added a `docker-compose.yml` for easy ChromaDB server setup (if Docker is available).
+
+- **Efficient Data Ingestion:**
+   - Created a dedicated `ingest.py` script to process, chunk, embed, and load all data into ChromaDB in one go.
+   - Supports batching and progress reporting for large-scale ingestion.
+   - Allows limiting the number of chunks for testing or resource-constrained environments.
+
+- **Colab/Cloud Ready:**
+   - The pipeline can be run on Google Colab for faster embedding and ingestion, avoiding local hardware bottlenecks.
+
+- **.gitignore Updated:**
+   - Now ignores all ChromaDB, vector store, and large binary index files to keep the repository clean.
+
+## Why This Matters
+
+- **Scalability:** ChromaDB can handle much larger datasets and is more robust for production or research use.
+- **Reproducibility:** Data is ingested once, and the app simply connects to the live vector DB.
+- **Engineering Maturity:** The project now demonstrates best practices for scalable, maintainable RAG systems.
+
+---
