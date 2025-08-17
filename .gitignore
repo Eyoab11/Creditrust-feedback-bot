@@ -9,6 +9,11 @@ env/
 data/raw/
 data/processed/
 vector_store/
+chroma_data/
+*.faiss
+*.pkl
+*.bin
+*.sqlite3
 .ipynb_checkpoints/
 .DS_Store
 Thumbs.db
