@@ -1,3 +1,60 @@
+# Intelligent Complaint Analysis: An AI-Powered RAG System for Financial Services
+
+## 🚀 [Live Demo (Coming Soon)](https://your-demo-link.com)
+
+![Visual Demo GIF](docs/demo.gif)
+
+---
+
+### Problem Statement
+Manually analyzing thousands of customer complaints is slow, costly, and prone to human error. Financial institutions need a scalable, automated way to extract actionable insights from vast amounts of unstructured feedback.
+
+### Solution
+I built an AI-powered Retrieval-Augmented Generation (RAG) tool that ingests financial complaint data and allows users to ask natural language questions. The system retrieves relevant complaint excerpts and generates concise, context-aware answers—enabling fast, data-driven decision making.
+
+### Architecture Diagram
+![Architecture Diagram](docs/architecture.png)
+
+**Flow:**
+User → Gradio UI → RAG Chain → (LLM + ChromaDB)
+
+### Tech Stack
+- Python
+- LangChain
+- Hugging Face Transformers
+- ChromaDB
+- Gradio
+- Docker (optional)
+
+### How to Run Locally
+1. Clone the repo:
+   ```
+   git clone https://github.com/Eyoab11/Creditrust-feedback-bot.git
+   cd Creditrust-feedback-bot
+   ```
+2. Create and activate a virtual environment:
+   ```
+   python -m venv venv
+   .\venv\Scripts\activate
+   ```
+3. Install dependencies:
+   ```
+   pip install -r requirements.txt
+   ```
+4. Ingest the data:
+   ```
+   python scripts/ingest.py
+   ```
+5. Launch the app:
+   ```
+   run.bat
+   # or
+   python app\app.py
+   ```
+6. Open your browser to [http://localhost:7860](http://localhost:7860)
+
+---
+
 # Task 1: Exploratory Data Analysis & Preprocessing
 
 This initial phase focused on understanding the raw Consumer Financial Protection Bureau (CFPB) complaint data and preparing it for our RAG pipeline.
@@ -56,44 +113,6 @@ The primary deliverable of this task is a clean, filtered dataset ready for the 
 - **Purpose**: This file will serve as the direct input for **Task 2: Text Chunking, Embedding, and Vector Store Indexing**.
 
 # Task 2: Chunking, Embedding, and Vector Store Indexing
-
-With a clean dataset, the next step was to convert the unstructured text narratives into a machine-readable format optimized for semantic search. This involved text chunking, vector embedding, and indexing into a vector store.
-
-## Chunking Strategy
-
-Long complaint narratives are ineffective when embedded as a single vector, as the specific details can get diluted. To address this, we implemented a text chunking strategy using **LangChain's RecursiveCharacterTextSplitter**:
-
-- **`chunk_size=1000` (characters)**:  
-  Chosen as a balance between:
-  - Being small enough to maintain semantic specificity
-  - Large enough to contain meaningful context for answering questions
-
-- **`chunk_overlap=100` (characters)**:  
-  Ensures context is not lost at chunk boundaries by allowing key sentences split between chunks to be fully captured in at least one chunk.
-
-### Outcome:
-- **Original complaints**: ~200,000  
-- **Resulting chunks**: ~350,000 (ready for embedding)
-
-## Embedding Model Choice
-
-We selected **`sentence-transformers/all-MiniLM-L6-v2`** for generating embeddings based on:
-
-1. **Performance**:  
-   - Strong balance of speed and accuracy  
-   - Ideal for responsive yet effective semantic search  
-
-2. **Efficiency**:  
-   - "Mini" model → Low computational/memory requirements  
-   - Runs on standard **CPU hardware** (no GPU needed)  
-
-3. **Generalization**:  
-   - Trained on diverse text → Suitable for financial complaint language  
-
-## Vector Store Implementation
-
-### Technology: **FAISS** (Facebook AI Similarity Search)
-- E# Task 2: Chunking, Embedding, and Vector Store Indexing
 
 With a clean dataset, the next step was to convert the unstructured text narratives into a machine-readable format optimized for semantic search. This involved text chunking, vector embedding, and indexing into a vector store.
 
